@@ -11,4 +11,8 @@ public class Extraccion extends Movimiento {
   public double calcularValor(Cuenta cuenta) {
     return cuenta.getSaldo() - getMonto();
   }
+
+  public boolean isExtraccion() {
+    return true;
+  }
 }
