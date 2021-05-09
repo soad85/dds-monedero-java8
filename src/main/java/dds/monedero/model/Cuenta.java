@@ -22,31 +22,42 @@ public class Cuenta {
   }
 
   public void poner(double cuanto) {
-    if (cuanto <= 0) {
-      throw new MontoNegativoException(cuanto + ": el monto a ingresar debe ser un valor positivo");
-    }
-
-    if (getMovimientos().stream().filter(Movimiento::isDeposito).count() >= 3) {
-      throw new MaximaCantidadDepositosException("Ya excedio los " + 3 + " depositos diarios");
-    }
-
+    validarMontoPositivo(cuanto);
+    validarCantidadDepositosDiarios();
     new Deposito(LocalDate.now(), cuanto).agregateA(this);
   }
 
   public void sacar(double cuanto) {
-    if (cuanto <= 0) {
-      throw new MontoNegativoException(cuanto + ": el monto a ingresar debe ser un valor positivo");
+    validarMontoPositivo(cuanto);
+    validarMontoExtraccion(cuanto);
+    validarLimite(cuanto);
+    new Extraccion(LocalDate.now(), cuanto).agregateA(this);
+  }
+
+  public void validarCantidadDepositosDiarios() {
+    if (getMovimientos().stream().filter(Movimiento::isDeposito).count() >= 3) {
+      throw new MaximaCantidadDepositosException("Ya excedio los " + 3 + " depositos diarios");
     }
+  }
+
+  public void validarMontoExtraccion(double cuanto) {
     if (getSaldo() - cuanto < 0) {
       throw new SaldoMenorException("No puede sacar mas de " + getSaldo() + " $");
     }
-    double montoExtraidoHoy = getMontoExtraidoA(LocalDate.now());
-    double limite = 1000 - montoExtraidoHoy;
+  }
+
+  public void validarLimite(double cuanto) {
+    double limite = 1000 - getMontoExtraidoA(LocalDate.now());
     if (cuanto > limite) {
       throw new MaximoExtraccionDiarioException("No puede extraer mas de $ " + 1000
           + " diarios, límite: " + limite);
     }
-    new Extraccion(LocalDate.now(), cuanto).agregateA(this);
+  }
+
+  public void validarMontoPositivo(double cuanto) {
+    if (cuanto <= 0) {
+      throw new MontoNegativoException(cuanto + ": el monto a ingresar debe ser un valor positivo");
+    }
   }
 
   public void agregarMovimiento(Movimiento movimiento) {
