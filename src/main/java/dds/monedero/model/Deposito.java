@@ -9,7 +9,7 @@ public class Deposito extends Movimiento {
 
   @Override
   public double calcularValor(Cuenta cuenta) {
-    return cuenta.getSaldo() - getMonto();
+    return cuenta.getSaldo() + getMonto();
   }
 
   public boolean isDeposito() {
